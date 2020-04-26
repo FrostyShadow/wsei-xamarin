@@ -1,12 +1,15 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:AirMonitor.ViewModels;assembly=AirMonitor"
              x:Class="AirMonitor.Views.HomePage"
              Title="Home Page">
-    <Button
-        Text="Go to details"
-        HorizontalOptions="Center"
-        VerticalOptions="Center"
-        Command="{Binding GoToDetailsCommand}"
-        />
+    <ListView ItemsSource="{Binding Installations}" ItemTapped="ListView_OnItemTapped">
+        <ListView.ItemTemplate>
+            <DataTemplate>
+                <TextCell Text="{Binding Address.DisplayAddress1}"
+                          Detail="{Binding Address.DisplayAddress2}" />
+            </DataTemplate>
+        </ListView.ItemTemplate>
+    </ListView>
 </ContentPage>

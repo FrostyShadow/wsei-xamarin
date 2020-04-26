@@ -25,7 +25,6 @@
         <Setter Property="HeightRequest" Value="100"/>
         <Setter Property="WidthRequest" Value="100"/>
         <Setter Property="HasShadow" Value="False"/>
-        <Setter Property="BackgroundColor" Value="{StaticResource CaqiGoodColor}"/>
         <Setter Property="BorderColor" Value="{StaticResource CaqiFrameBorderColor}"/>
     </Style>
 

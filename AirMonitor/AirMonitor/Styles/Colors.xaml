@@ -6,7 +6,6 @@
     <Color x:Key="PrimaryColor">Black</Color>
     <Color x:Key="SecondaryColor">DarkSlateGray</Color>
     <Color x:Key="TertiaryColor">LightGray</Color>
-    <Color x:Key="CaqiGoodColor">#33f069</Color>
     <Color x:Key="CaqiFrameBorderColor">Gray</Color>
     <Color x:Key="SliderAccentColor">CornflowerBlue</Color>
     <Color x:Key="SliderTrackBackgroundColor">Gray</Color>

@@ -10,9 +10,6 @@
              xmlns:converters="clr-namespace:AirMonitor.Converters"
              Title="Details Page"
              Style="{StaticResource DetailsPageStyle}">
-    <ContentPage.BindingContext>
-        <viewModels:DetailsViewModel/>
-    </ContentPage.BindingContext>
     <ContentPage.Resources>
         <ResourceDictionary>
             <converters:ValueToPercentConverter x:Key="ValueToPercent"/>
@@ -22,7 +19,8 @@
     <ScrollView>
         <Grid>
             <StackLayout Style="{StaticResource DetailsLayoutStyle}">
-                <Frame Style="{StaticResource CaqiFrameStyle}">
+                <Frame Style="{StaticResource CaqiFrameStyle}"
+                       BackgroundColor="{Binding CaqiColor}">
                     <Label Style="{StaticResource CenteredTextStyle}">
                         <Label.FormattedText>
                             <FormattedString>
@@ -107,10 +105,13 @@
                     <controls:ContentWithHeader.ControlContent>
                         <StackLayout>
                             <Label
-                                Text="{Binding HumidityValue, Converter={StaticResource ValueToPercent}, StringFormat='{0}%'}"
+                                Text="{Binding HumidityValue, StringFormat='{0}%'}"
                                 Style="{StaticResource NormalTextLabelStyle}"/>
                             <Slider
+                                Maximum="100"
+                                Minimum="0"
                                 Value="{Binding HumidityValue}"
+                                IsEnabled="False"
                                 Style="{StaticResource SliderStyle}"/>
                         </StackLayout>
                     </controls:ContentWithHeader.ControlContent>
@@ -128,6 +129,7 @@
                                 Maximum="1100"
                                 Minimum="900"
                                 Value="1026"
+                                IsEnabled="False"
                                 Style="{StaticResource SliderStyle}"/>
                         </StackLayout>
                     </controls:ContentWithHeader.ControlContent>
