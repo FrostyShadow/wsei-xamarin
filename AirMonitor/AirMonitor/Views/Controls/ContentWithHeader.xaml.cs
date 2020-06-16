@@ -1,38 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using Xamarin.Forms;
+﻿using Xamarin.Forms;
 
 namespace AirMonitor.Views.Controls
 {
     public partial class ContentWithHeader : StackLayout
     {
         public static readonly BindableProperty TitleProperty = BindableProperty.Create(
-            propertyName: nameof(Title),
-            returnType: typeof(string),
-            declaringType: typeof(ContentWithHeader),
-            defaultValue: null);
-
-        public string Title
-        {
-            get { return (string)GetValue(TitleProperty); }
-            set { SetValue(TitleProperty, value); }
-        }
+            nameof(Title),
+            typeof(string),
+            typeof(ContentWithHeader));
 
         public static readonly BindableProperty ControlContentProperty = BindableProperty.Create(
-            propertyName: nameof(ControlContent),
-            returnType: typeof(View),
-            declaringType: typeof(ContentWithHeader),
-            defaultValue: null);
-
-        public View ControlContent
-        {
-            get { return (View)GetValue(ControlContentProperty); }
-            set { SetValue(ControlContentProperty, value); }
-        }
+            nameof(ControlContent),
+            typeof(View),
+            typeof(ContentWithHeader));
 
         public ContentWithHeader()
         {
             InitializeComponent();
+        }
+
+        public string Title
+        {
+            get => (string) GetValue(TitleProperty);
+            set => SetValue(TitleProperty, value);
+        }
+
+        public View ControlContent
+        {
+            get => (View) GetValue(ControlContentProperty);
+            set => SetValue(ControlContentProperty, value);
         }
     }
 }

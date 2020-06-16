@@ -4,12 +4,17 @@
              xmlns:viewModels="clr-namespace:AirMonitor.ViewModels;assembly=AirMonitor"
              x:Class="AirMonitor.Views.HomePage"
              Title="Home Page">
-    <ListView ItemsSource="{Binding Installations}" ItemTapped="ListView_OnItemTapped">
-        <ListView.ItemTemplate>
-            <DataTemplate>
-                <TextCell Text="{Binding Address.DisplayAddress1}"
-                          Detail="{Binding Address.DisplayAddress2}" />
-            </DataTemplate>
-        </ListView.ItemTemplate>
-    </ListView>
+    <Grid>
+        <ActivityIndicator IsRunning="{Binding IsDownloading}" Color="Orange" />
+        <ListView ItemsSource="{Binding Installations}" 
+                  ItemTapped="ListView_OnItemTapped"
+                  SeparatorColor="Orange">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextCell Text="{Binding Address.DisplayAddress1}"
+                              Detail="{Binding Address.DisplayAddress2}" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </Grid>
 </ContentPage>

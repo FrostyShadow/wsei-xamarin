@@ -13,5 +13,19 @@ namespace AirMonitor.Models
         public bool IsAirlyInstallation { get; set; }
         public Sponsor Sponsor { get; set; }
         public Measurements Measurements { get; set; }
+
+        public Installation()
+        {
+            
+        }
+
+        public Installation(InstallationEntity installationEntity)
+        {
+            Id = installationEntity.Id;
+            Location = JsonConvert.DeserializeObject<Coordinates>(installationEntity.Location);
+            Address = JsonConvert.DeserializeObject<Address>(installationEntity.Address);
+            Elevation = installationEntity.Elevation;
+            IsAirlyInstallation = installationEntity.IsAirlyInstallation;
+        }
     }
 }

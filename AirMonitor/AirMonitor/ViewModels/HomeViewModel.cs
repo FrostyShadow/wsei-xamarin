@@ -41,12 +41,22 @@ namespace AirMonitor.ViewModels
             set => SetProperty(ref _installations, value);
         }
 
+        private bool _isDownloading;
+
+        public bool IsDownloading
+        {
+            get => _isDownloading;
+            set => SetProperty(ref _isDownloading, value);
+        }
+
         private async Task Initialize()
         {
             var location = await GetLocation();
-            var installations = (await GetInstallations(location, maxResults: 7)).ToList();
-            await GetMeasurements(installations);
-            Installations = new List<Installation>(installations);
+            var installationList = (await GetInstallations(location, maxResults: 7)).ToList();
+            await App.DatabaseHelper.SaveAsync(installationList);
+            await GetMeasurements(installationList);
+            IsDownloading = false;
+            Installations = new List<Installation>(installationList);
         }
 
         private async Task GetMeasurements(IEnumerable<Installation> installations)
@@ -56,6 +66,8 @@ namespace AirMonitor.ViewModels
                 Debug.WriteLine("No installation data.");
                 return;
             }
+
+            var measurements = new List<Measurements>();
 
             foreach (var installation in installations)
             {
@@ -69,8 +81,11 @@ namespace AirMonitor.ViewModels
                 var url = GetAirlyApiUrl(App.AirlyApiMeasurementUrl, query);
 
                 var response = await GetHttpResponseAsync<Measurements>(url);
+                measurements.Add(response);
                 installation.Measurements = response;
             }
+
+            await App.DatabaseHelper.SaveAsync(measurements);
         }
 
         private async Task<IEnumerable<Installation>> GetInstallations(Location location, double maxDistanceInKm = 3,
@@ -82,6 +97,7 @@ namespace AirMonitor.ViewModels
                 return null;
             }
 
+            _isDownloading = true;
 
             var query = GetQuery(new Dictionary<string, object>
             {

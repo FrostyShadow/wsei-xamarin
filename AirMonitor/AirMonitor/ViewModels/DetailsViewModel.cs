@@ -103,9 +103,10 @@ namespace AirMonitor.ViewModels
         private void UpdateValues()
         {
             var caqi = _installation.Measurements.Current.Indexes.FirstOrDefault(c => c.Name == "AIRLY_CAQI");
+            if (caqi == null) return;
             var values = _installation.Measurements.Current.Values;
             var standards = _installation.Measurements.Current.Standards;
-            CaqiValue = (int) Math.Floor(caqi.Value);
+            CaqiValue = (int) Math.Floor(caqi.Value ?? 0.00d);
             CaqiTitle = caqi.Description;
             CaqiDescription = caqi.Advice;
             CaqiColor = Color.FromHex(caqi.Color);

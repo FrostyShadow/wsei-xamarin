@@ -18,6 +18,8 @@ namespace AirMonitor
         public static string AirlyApiMeasurementUrl { get; private set; }
         public static string AirlyApiInstallationUrl { get; private set; }
 
+        public static DatabaseHelper DatabaseHelper { get; private set; }
+
         public App()
         {
             InitializeComponent();
@@ -28,6 +30,7 @@ namespace AirMonitor
         private async Task InitializeApp()
         {
             await LoadConfig();
+            DatabaseHelper = new DatabaseHelper(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Airly.db"));
             MainPage = new RootTabbedPage();
         }
 

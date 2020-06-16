@@ -9,5 +9,10 @@ namespace AirMonitor.Models
         public string Number { get; set; }
         public string DisplayAddress1 { get; set; }
         public string DisplayAddress2 { get; set; }
+
+        public Address()
+        {
+            
+        }
     }
 }

@@ -18,6 +18,7 @@ namespace AirMonitor.Views
         {
             var context = (HomeViewModel) BindingContext;
             var parameter = (Installation) e.Item;
+            ((ListView)sender).SelectedItem = null;
             if (parameter.Measurements == null)
             {
                 DisplayAlert("No data", "No measurement data for selected installation.", "Cancel");
