@@ -49,17 +49,44 @@ namespace AirMonitor.ViewModels
             set => SetProperty(ref _isDownloading, value);
         }
 
+        private Location _location;
+
         private async Task Initialize()
         {
-            var location = await GetLocation();
-            var installationList = (await GetInstallations(location, maxResults: 7)).ToList();
-            await App.DatabaseHelper.SaveAsync(installationList);
-            await GetMeasurements(installationList);
+            _location = await GetLocation();
+            IsDownloading = true;
+            await GetData();
+        }
+
+        private async Task GetData()
+        {
+            var current = (await App.DatabaseHelper.GetCurrentMeasurementsAsync()).FirstOrDefault()?.TillDateTime;
+            List<Installation> installationList;
+            bool isUpdateRequired;
+            if (current == null)
+            {
+                installationList = (await GetInstallations(_location, maxResults: 7)).ToList();
+                await App.DatabaseHelper.SaveAsync(installationList);
+                isUpdateRequired = true;
+            }
+            else if (((TimeSpan) (DateTime.UtcNow - current)).TotalHours >= 1)
+            {
+                installationList = (await GetInstallations(_location, maxResults: 7)).ToList();
+                await App.DatabaseHelper.SaveAsync(installationList);
+                isUpdateRequired = true;
+            }
+            else
+            {
+                installationList = (await App.DatabaseHelper.GetInstallationsAsync()).ToList();
+                isUpdateRequired = false;
+            }
+            
+            await GetMeasurements(installationList, isUpdateRequired);
             IsDownloading = false;
             Installations = new List<Installation>(installationList);
         }
 
-        private async Task GetMeasurements(IEnumerable<Installation> installations)
+        private async Task GetMeasurements(IEnumerable<Installation> installations, bool isUpdateRequired = true)
         {
             if (installations == null)
             {
@@ -71,21 +98,29 @@ namespace AirMonitor.ViewModels
 
             foreach (var installation in installations)
             {
-                var query = GetQuery(new Dictionary<string, object>
+                if (isUpdateRequired)
                 {
-                    {"includeWind", false},
-                    {"indexType", "AIRLY_CAQI"},
-                    {"installationId", installation.Id}
-                });
+                    var query = GetQuery(new Dictionary<string, object>
+                    {
+                        {"includeWind", false},
+                        {"indexType", "AIRLY_CAQI"},
+                        {"installationId", installation.Id}
+                    });
 
-                var url = GetAirlyApiUrl(App.AirlyApiMeasurementUrl, query);
+                    var url = GetAirlyApiUrl(App.AirlyApiMeasurementUrl, query);
 
-                var response = await GetHttpResponseAsync<Measurements>(url);
-                measurements.Add(response);
-                installation.Measurements = response;
+                    var response = await GetHttpResponseAsync<Measurements>(url);
+                    measurements.Add(response);
+                    installation.Measurements = response;
+                }
+                else
+                {
+                    installation.Measurements =
+                        await App.DatabaseHelper.GetMeasurementByInstallationAsync(installation.Id);
+                }
             }
-
-            await App.DatabaseHelper.SaveAsync(measurements);
+            if(isUpdateRequired)
+                await App.DatabaseHelper.SaveAsync(measurements);
         }
 
         private async Task<IEnumerable<Installation>> GetInstallations(Location location, double maxDistanceInKm = 3,

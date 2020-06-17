@@ -20,10 +20,9 @@ namespace AirMonitor.Models
 
         public MeasurementEntity(Measurements measurements)
         {
-            CurrentId = new MeasurementItemEntity(measurements.Current).Id;
             History = JsonConvert.SerializeObject(measurements.History);
             Forecast = JsonConvert.SerializeObject(measurements.Forecast);
-            InstallationId = new InstallationEntity(measurements.Installation).Id;
+            InstallationId = measurements.Installation.Id;
         }
     }
 }

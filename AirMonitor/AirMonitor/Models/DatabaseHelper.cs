@@ -25,32 +25,35 @@ namespace AirMonitor.Models
 
         public async Task SaveAsync(IList<Installation> installationList)
         {
-            foreach (var installation in installationList)
+            var entities = installationList.Select(installation => new InstallationEntity(installation)).ToList();
+            await _database.RunInTransactionAsync(db =>
             {
-                var entity = new InstallationEntity(installation);
-                await _database.RunInTransactionAsync(db =>
-                 {
-                     db.Table<InstallationEntity>().Delete(c => true);
-                     db.Insert(entity);
-                 });
-            }
+                db.Table<InstallationEntity>().Delete(c => true);
+                db.InsertAll(entities);
+            });
         }
 
         public async Task SaveAsync(IList<Measurements> measurementList)
         {
+            await _database.RunInTransactionAsync(db =>
+            {
+                db.Table<MeasurementEntity>().Delete(c => true);
+                db.Table<MeasurementItemEntity>().Delete(c => true);
+                db.Table<Value>().Delete(c => true);
+                db.Table<Index>().Delete(c => true);
+                db.Table<Standard>().Delete(c => true);
+            });
+
             foreach (var measurement in measurementList)
             {
-                var entity = new MeasurementEntity(measurement);
                 await _database.RunInTransactionAsync(db =>
                 {
-                    db.Table<MeasurementEntity>().Delete(c => true);
-                    db.Table<MeasurementItemEntity>().Delete(c => true);
-                    db.Table<Value>().Delete(c => true);
-                    db.Table<Index>().Delete(c => true);
-                    db.Table<Standard>().Delete(c => true);
+                    
 
+                    var currentEntity = new MeasurementItemEntity(measurement.Current);
+                    db.Insert(currentEntity);
+                    var entity = new MeasurementEntity(measurement) {CurrentId = currentEntity.Id};
                     db.Insert(entity);
-                    db.Insert(new MeasurementItemEntity(measurement.Current));
                     db.InsertAll(measurement.Current.Indexes, false);
                     db.InsertAll(measurement.Current.Standards, false);
                     db.InsertAll(measurement.Current.Values, false);
@@ -79,6 +82,12 @@ namespace AirMonitor.Models
         public async Task<Measurements> GetMeasurementAsync(int id)
         {
             var measurementEntity = await _database.Table<MeasurementEntity>().FirstOrDefaultAsync(i => i.Id == id);
+            return new Measurements(measurementEntity);
+        }
+
+        public async Task<Measurements> GetMeasurementByInstallationAsync(int installationId)
+        {
+            var measurementEntity = await _database.Table<MeasurementEntity>().FirstOrDefaultAsync(i => i.InstallationId == installationId);
             return new Measurements(measurementEntity);
         }
 

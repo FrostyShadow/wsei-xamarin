@@ -128,7 +128,7 @@
                             <Slider
                                 Maximum="1100"
                                 Minimum="900"
-                                Value="1026"
+                                Value="{Binding PressureValue}"
                                 IsEnabled="False"
                                 Style="{StaticResource SliderStyle}"/>
                         </StackLayout>
