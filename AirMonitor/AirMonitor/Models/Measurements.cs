@@ -17,10 +17,8 @@ namespace AirMonitor.Models
 
         public Measurements(MeasurementEntity measurementEntity)
         {
-            Current = App.DatabaseHelper.GetCurrentMeasurementAsync(measurementEntity.CurrentId).Result;
             History = JsonConvert.DeserializeObject<IList<AveragedValues>>(measurementEntity.History);
             Forecast = JsonConvert.DeserializeObject<IList<AveragedValues>>(measurementEntity.Forecast);
-            Installation = App.DatabaseHelper.GetInstallationAsync(measurementEntity.InstallationId).Result;
         }
     }
 }

@@ -110,13 +110,17 @@ namespace AirMonitor.ViewModels
                     var url = GetAirlyApiUrl(App.AirlyApiMeasurementUrl, query);
 
                     var response = await GetHttpResponseAsync<Measurements>(url);
+                    response.Installation = installation;
                     measurements.Add(response);
                     installation.Measurements = response;
                 }
                 else
                 {
-                    installation.Measurements =
-                        await App.DatabaseHelper.GetMeasurementByInstallationAsync(installation.Id);
+                    var measurement = await App.DatabaseHelper.GetMeasurementByInstallationAsync(installation.Id);
+                    measurement.Installation = installation;
+                    measurement.Current =
+                        await App.DatabaseHelper.GetCurrentMeasurementByInstallationAsync(installation.Id);
+                    installation.Measurements = measurement;
                 }
             }
             if(isUpdateRequired)

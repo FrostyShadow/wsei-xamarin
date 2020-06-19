@@ -26,7 +26,7 @@ namespace AirMonitor.Models
             Address = JsonConvert.DeserializeObject<Address>(installationEntity.Address);
             Elevation = installationEntity.Elevation;
             IsAirlyInstallation = installationEntity.IsAirlyInstallation;
-            Measurements = App.DatabaseHelper.GetMeasurementAsync(installationEntity.MeasurementsId).Result;
+            //Measurements = App.DatabaseHelper.GetMeasurementAsync(installationEntity.MeasurementsId).Result;
         }
     }
 }

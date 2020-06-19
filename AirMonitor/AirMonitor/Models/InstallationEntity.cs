@@ -27,7 +27,6 @@ namespace AirMonitor.Models
             Elevation = installation.Elevation;
             IsAirlyInstallation = installation.IsAirlyInstallation;
             //SponsorId = installation.Sponsor.Id;
-            //MeasurementsId = new MeasurementEntity(installation.Measurements).Id;
         }
     }
 }

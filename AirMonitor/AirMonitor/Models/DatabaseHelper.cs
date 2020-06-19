@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Android.OS;
+using Newtonsoft.Json;
 using SQLite;
 
 namespace AirMonitor.Models
@@ -46,10 +48,9 @@ namespace AirMonitor.Models
 
             foreach (var measurement in measurementList)
             {
+                
                 await _database.RunInTransactionAsync(db =>
                 {
-                    
-
                     var currentEntity = new MeasurementItemEntity(measurement.Current);
                     db.Insert(currentEntity);
                     var entity = new MeasurementEntity(measurement) {CurrentId = currentEntity.Id};
@@ -69,7 +70,7 @@ namespace AirMonitor.Models
 
         public async Task<Installation> GetInstallationAsync(int id)
         {
-            var installationEntity = await _database.Table<InstallationEntity>().FirstOrDefaultAsync(i => i.Id == id);
+            var installationEntity = await _database.GetAsync<InstallationEntity>(id);
             return new Installation(installationEntity);
         }
 
@@ -85,9 +86,10 @@ namespace AirMonitor.Models
             return new Measurements(measurementEntity);
         }
 
-        public async Task<Measurements> GetMeasurementByInstallationAsync(int installationId)
+        public async Task<Measurements> GetMeasurementByInstallationAsync(int id)
         {
-            var measurementEntity = await _database.Table<MeasurementEntity>().FirstOrDefaultAsync(i => i.InstallationId == installationId);
+            var measurementEntity =
+                await _database.Table<MeasurementEntity>().FirstOrDefaultAsync(m => m.InstallationId == id);
             return new Measurements(measurementEntity);
         }
 
@@ -100,6 +102,13 @@ namespace AirMonitor.Models
         public async Task<AveragedValues> GetCurrentMeasurementAsync(int id)
         {
             var currentMeasurementEntity = await _database.Table<MeasurementItemEntity>().FirstOrDefaultAsync(i => i.Id == id);
+            return new AveragedValues(currentMeasurementEntity);
+        }
+
+        public async Task<AveragedValues> GetCurrentMeasurementByInstallationAsync(int id)
+        {
+            var measurement = await _database.Table<MeasurementEntity>().FirstOrDefaultAsync(i => i.InstallationId == id);
+            var currentMeasurementEntity = await _database.Table<MeasurementItemEntity>().FirstOrDefaultAsync(i => i.Id == measurement.CurrentId);
             return new AveragedValues(currentMeasurementEntity);
         }
     }
