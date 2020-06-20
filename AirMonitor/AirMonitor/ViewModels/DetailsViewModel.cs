@@ -92,21 +92,41 @@ namespace AirMonitor.ViewModels
             set => SetProperty(ref _pressureValue, value);
         }
 
-        private Installation _installation;
-
         public DetailsViewModel(Installation installation)
         {
-            _installation = installation;
-            UpdateValues();
+            UpdateValues(installation);
         }
 
-        private void UpdateValues()
+        public DetailsViewModel(Measurements measurements)
         {
-            var caqi = _installation.Measurements.Current.Indexes.FirstOrDefault(c => c.Name == "AIRLY_CAQI");
+            UpdateValues(measurements);
+        }
+
+        private void UpdateValues(Installation installation)
+        {
+            var caqi = installation.Measurements.Current.Indexes.FirstOrDefault(c => c.Name == "AIRLY_CAQI");
             if (caqi == null) return;
-            var values = _installation.Measurements.Current.Values;
-            var standards = _installation.Measurements.Current.Standards;
+            var values = installation.Measurements.Current.Values;
+            var standards = installation.Measurements.Current.Standards;
             CaqiValue = (int) Math.Floor(caqi.Value ?? 0.00d);
+            CaqiTitle = caqi.Description;
+            CaqiDescription = caqi.Advice;
+            CaqiColor = Color.FromHex(caqi.Color);
+            Pm25Value = values.FirstOrDefault(c => c.Name == "PM25")?.MeasurementValue ?? 0.0;
+            Pm10Value = values.FirstOrDefault(c => c.Name == "PM10")?.MeasurementValue ?? 0.0;
+            Pm25Percent = standards.FirstOrDefault(c => c.Pollutant == "PM25")?.Percent ?? 0.0;
+            Pm10Percent = standards.FirstOrDefault(c => c.Pollutant == "PM10")?.Percent ?? 0.0;
+            HumidityValue = Math.Floor(values.FirstOrDefault(c => c.Name == "HUMIDITY")?.MeasurementValue ?? 0.0);
+            PressureValue = values.FirstOrDefault(c => c.Name == "PRESSURE")?.MeasurementValue ?? 0.0;
+        }
+
+        private void UpdateValues(Measurements measurements)
+        {
+            var caqi = measurements.Current.Indexes.FirstOrDefault(c => c.Name == "AIRLY_CAQI");
+            if (caqi == null) return;
+            var values = measurements.Current.Values;
+            var standards = measurements.Current.Standards;
+            CaqiValue = (int)Math.Floor(caqi.Value ?? 0.00d);
             CaqiTitle = caqi.Description;
             CaqiDescription = caqi.Advice;
             CaqiColor = Color.FromHex(caqi.Color);

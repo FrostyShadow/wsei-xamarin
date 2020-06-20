@@ -13,6 +13,7 @@ using AirMonitor.Views;
 using Newtonsoft.Json;
 using Xamarin.Essentials;
 using Xamarin.Forms;
+using Xamarin.Forms.Maps;
 
 namespace AirMonitor.ViewModels
 {
@@ -22,7 +23,8 @@ namespace AirMonitor.ViewModels
 
 
         private ICommand _goToDetailsCommand;
-
+        private ICommand _refreshCommand;
+        private ICommand _goToDetailsFromMapCommand;
 
         public HomeViewModel(INavigation navigation)
         {
@@ -32,6 +34,8 @@ namespace AirMonitor.ViewModels
         }
 
         public ICommand GoToDetailsCommand => _goToDetailsCommand ??= new Command(OnGoToDetails);
+        public ICommand RefreshCommand => _refreshCommand ??= new Command(Refresh);
+        public ICommand GoToDetailsFromMapCommand => _goToDetailsFromMapCommand ??= new Command(OnInfoWindowClicked);
 
         private IList<Installation> _installations;
 
@@ -41,12 +45,28 @@ namespace AirMonitor.ViewModels
             set => SetProperty(ref _installations, value);
         }
 
+        private IList<MapLocation> _mapLocations;
+
+        public IList<MapLocation> MapLocations
+        {
+            get => _mapLocations;
+            set => SetProperty(ref _mapLocations, value);
+        }
+
         private bool _isDownloading;
 
         public bool IsDownloading
         {
             get => _isDownloading;
             set => SetProperty(ref _isDownloading, value);
+        }
+
+        private bool _isRefreshing;
+
+        public bool IsRefreshing
+        {
+            get => _isRefreshing;
+            set => SetProperty(ref _isRefreshing, value);
         }
 
         private Location _location;
@@ -58,7 +78,13 @@ namespace AirMonitor.ViewModels
             await GetData();
         }
 
-        private async Task GetData()
+        private async void Refresh(object parameters)
+        {
+            IsRefreshing = true;
+            await GetData(true);
+        }
+
+        private async Task GetData(bool isUpdateRequested = false)
         {
             var current = (await App.DatabaseHelper.GetCurrentMeasurementsAsync()).FirstOrDefault()?.TillDateTime;
             List<Installation> installationList;
@@ -75,6 +101,12 @@ namespace AirMonitor.ViewModels
                 await App.DatabaseHelper.SaveAsync(installationList);
                 isUpdateRequired = true;
             }
+            else if (isUpdateRequested)
+            {
+                installationList = (await GetInstallations(_location, maxResults: 7)).ToList();
+                await App.DatabaseHelper.SaveAsync(installationList);
+                isUpdateRequired = true;
+            }
             else
             {
                 installationList = (await App.DatabaseHelper.GetInstallationsAsync()).ToList();
@@ -82,8 +114,19 @@ namespace AirMonitor.ViewModels
             }
             
             await GetMeasurements(installationList, isUpdateRequired);
-            IsDownloading = false;
+            if (isUpdateRequested)
+                IsRefreshing = false;
+            else
+                IsDownloading = false;
             Installations = new List<Installation>(installationList);
+            MapLocations = Installations.Select(i => new MapLocation
+            {
+                InstallationId = i.Id,
+                Address = $"{i.Address.DisplayAddress2}, {i.Address.DisplayAddress1}",
+                Description =
+                    $"CAQI: {i.Measurements.Current.Indexes.FirstOrDefault(c => c.Name == "AIRLY_CAQI")?.Value}",
+                Position = new Position(i.Location.Latitude, i.Location.Longitude)
+            }).ToList();
         }
 
         private async Task GetMeasurements(IEnumerable<Installation> installations, bool isUpdateRequired = true)
@@ -252,6 +295,16 @@ namespace AirMonitor.ViewModels
         private void OnGoToDetails(object parameters)
         {
             _navigation.PushAsync(new DetailsPage((Installation) parameters));
+        }
+
+        private void OnInfoWindowClicked(object parameters)
+        {
+            var measurement = Installations.Where(i => i.Id == (int) parameters)
+                .Select(i => i.Measurements)
+                .FirstOrDefault();
+            if (measurement == null)
+                return;
+            _navigation.PushAsync(new DetailsPage(measurement));
         }
     }
 }

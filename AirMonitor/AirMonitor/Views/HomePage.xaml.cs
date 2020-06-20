@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using AirMonitor.Models;
 using AirMonitor.ViewModels;
+using Android.Content;
 using Xamarin.Forms;
 
 namespace AirMonitor.Views

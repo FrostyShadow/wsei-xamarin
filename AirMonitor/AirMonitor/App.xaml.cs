@@ -20,6 +20,9 @@ namespace AirMonitor
 
         public static DatabaseHelper DatabaseHelper { get; private set; }
 
+        private readonly string _dbPath =
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Airly.db");
+
         public App()
         {
             InitializeComponent();
@@ -30,7 +33,7 @@ namespace AirMonitor
         private async Task InitializeApp()
         {
             await LoadConfig();
-            DatabaseHelper = new DatabaseHelper(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Airly.db"));
+            DatabaseHelper ??= new DatabaseHelper(_dbPath);
             MainPage = new RootTabbedPage();
         }
 
@@ -55,14 +58,18 @@ namespace AirMonitor
 
         protected override void OnStart()
         {
+            DatabaseHelper ??= new DatabaseHelper(_dbPath);
         }
 
         protected override void OnSleep()
         {
+            DatabaseHelper.Dispose();
+            DatabaseHelper = null;
         }
 
         protected override void OnResume()
         {
+            DatabaseHelper ??= new DatabaseHelper(_dbPath);
         }
     }
 }

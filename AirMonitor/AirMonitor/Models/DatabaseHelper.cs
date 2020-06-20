@@ -9,9 +9,9 @@ using SQLite;
 
 namespace AirMonitor.Models
 {
-    public class DatabaseHelper
+    public class DatabaseHelper : IDisposable
     {
-        private readonly SQLiteAsyncConnection _database;
+        private SQLiteAsyncConnection _database;
 
         public DatabaseHelper(string dbPath)
         {
@@ -110,6 +110,12 @@ namespace AirMonitor.Models
             var measurement = await _database.Table<MeasurementEntity>().FirstOrDefaultAsync(i => i.InstallationId == id);
             var currentMeasurementEntity = await _database.Table<MeasurementItemEntity>().FirstOrDefaultAsync(i => i.Id == measurement.CurrentId);
             return new AveragedValues(currentMeasurementEntity);
+        }
+
+        public void Dispose()
+        {
+            _database.CloseAsync().Wait();
+            _database = null;
         }
     }
 }

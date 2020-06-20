@@ -101,7 +101,7 @@
 
                 
                 <BoxView Style="{StaticResource HorizontalSeparatorStyle}"/>
-                <controls:ContentWithHeader Title="Wilgotność">
+                <controls:ContentWithHeader Title="Humidity">
                     <controls:ContentWithHeader.ControlContent>
                         <StackLayout>
                             <Label
@@ -118,7 +118,7 @@
                 </controls:ContentWithHeader>
                 
                 <BoxView Style="{StaticResource HorizontalSeparatorStyle}"/>
-                <controls:ContentWithHeader Title="Ciśnienie">
+                <controls:ContentWithHeader Title="Pressure">
                     <controls:ContentWithHeader.ControlContent>
                         <StackLayout>
                             <Label
