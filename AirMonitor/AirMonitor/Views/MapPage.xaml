@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:maps="clr-namespace:Xamarin.Forms.Maps;assembly=Xamarin.Forms.Maps"
              mc:Ignorable="d"
+             Title="Map"
              x:Class="AirMonitor.Views.MapPage">
     <ContentPage.Content>
         <maps:Map x:Name="Map"
